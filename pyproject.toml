@@ -1,0 +1,14 @@
+[project]
+name = "h1spec"
+version = "0.1.0"
+description = "HTTP/1.1 conformance testing tool in the spirit of h2spec"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+
+[project.scripts]
+h1spec = "h1spec:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
