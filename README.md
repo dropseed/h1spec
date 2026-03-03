@@ -28,3 +28,7 @@ h1spec --section headers --section body localhost:8000
 - **Response Semantics** (RFC 9110) — HEAD, error delimiting
 - **Connection** (RFC 9112 S9) — keep-alive, pipelining, close
 - **Hardening** — oversized requests, header floods
+
+## Credits
+
+Most of this was written by [Codex](https://openai.com/index/codex/) and [Claude](https://claude.ai/).
