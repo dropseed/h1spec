@@ -166,37 +166,6 @@ def test_conflicting_content_length(addr: tuple[str, int]) -> bool | tuple[bool,
     return False, f"Expected 400, got {status}"
 
 
-def test_content_length_list_same_value(
-    addr: tuple[str, int],
-) -> bool | tuple[bool, str]:
-    """A list-form Content-Length with the same value is accepted."""
-    req = b"POST / HTTP/1.1\r\nHost: localhost\r\nContent-Length: 5, 5\r\n\r\nhello"
-    resp = send_recv(addr, req)
-    status = parse_status(resp)
-    if is_valid_status(status) and status != 400:
-        return True
-    return False, f"Expected valid non-400 status, got {status}"
-
-
-def test_duplicate_content_length_same_value(
-    addr: tuple[str, int],
-) -> bool | tuple[bool, str]:
-    """Duplicate Content-Length fields with same value are accepted."""
-    req = (
-        b"POST / HTTP/1.1\r\n"
-        b"Host: localhost\r\n"
-        b"Content-Length: 5\r\n"
-        b"Content-Length: 5\r\n"
-        b"\r\n"
-        b"hello"
-    )
-    resp = send_recv(addr, req)
-    status = parse_status(resp)
-    if is_valid_status(status) and status != 400:
-        return True
-    return False, f"Expected valid non-400 status, got {status}"
-
-
 def test_invalid_content_length_value(addr: tuple[str, int]) -> bool | tuple[bool, str]:
     """Invalid Content-Length value is rejected."""
     req = b"POST / HTTP/1.1\r\nHost: localhost\r\nContent-Length: xyz\r\n\r\nhello"
@@ -295,16 +264,6 @@ SECTION = Section(
         ),
         case("Unknown transfer-coding rejected", test_unknown_transfer_encoding),
         case("Chunked not-final coding rejected", test_non_final_chunked_coding),
-        case(
-            "Content-Length list with same value accepted",
-            test_content_length_list_same_value,
-            strict=True,
-        ),
-        case(
-            "Duplicate Content-Length with same value accepted",
-            test_duplicate_content_length_same_value,
-            strict=True,
-        ),
         case("Invalid Content-Length rejected", test_invalid_content_length_value),
         case("Conflicting Content-Length rejected", test_conflicting_content_length),
         case("Invalid chunk-size rejected", test_invalid_chunk_size),

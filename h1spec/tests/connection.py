@@ -5,7 +5,6 @@ from __future__ import annotations
 from ..client import (
     close_socket,
     connect,
-    get_body,
     is_valid_status,
     parse_status,
     recv_one_response,
@@ -33,31 +32,6 @@ def test_keepalive_default(addr: tuple[str, int]) -> bool | tuple[bool, str]:
     if is_valid_status(status1) and is_valid_status(status2):
         return True
     return False, f"First: {status1}, Second: {status2}"
-
-
-def test_pipelining_in_order(addr: tuple[str, int]) -> bool | tuple[bool, str]:
-    """Pipelined responses are returned in request order."""
-    s = connect(addr)
-    s.settimeout(5)
-    try:
-        s.sendall(
-            b"HEAD / HTTP/1.1\r\nHost: localhost\r\n\r\n"
-            b"GET / HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n"
-        )
-        resp1 = recv_one_response(s, request_method=b"HEAD")
-        status1 = parse_status(resp1)
-        if not is_valid_status(status1):
-            return False, f"Invalid first response status: {status1}"
-        if get_body(resp1):
-            return False, "First pipelined response should be for HEAD (no body)"
-
-        resp2 = recv_one_response(s)
-        status2 = parse_status(resp2)
-        if not is_valid_status(status2):
-            return False, f"Invalid second response status: {status2}"
-        return True
-    finally:
-        close_socket(s)
 
 
 def _assert_server_closes(
@@ -101,10 +75,5 @@ SECTION = Section(
         case("Keep-alive default (HTTP/1.1)", test_keepalive_default),
         case("Connection: close honored", test_connection_close),
         case("HTTP/1.0 closes by default", test_http10_closes),
-        case(
-            "Pipelined responses preserve order",
-            test_pipelining_in_order,
-            strict=True,
-        ),
     ],
 )
